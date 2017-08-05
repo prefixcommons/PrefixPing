@@ -14,13 +14,13 @@ If a registry implements their service in a way that the question
   _Do you have a page for this __prefix__?_ 
 
   can be answered with http status codes then the base URL is added to
- the local [registry_url.txt](file://registry_url.txt)
+ the local [registry_url.txt](https://github.com/TomConlin/PrefixPing/blob/master/registry_url.yaml)
 
     note: A couple of them return a _wrong_ (500 server error) code.  
     We should try to get them fixed.
 
 - Okay  
- It the data file the site is generated with is available use the data directly.  
+ It the data file the site is generated from is available use that data directly.  
  Currently this is in the form of yaml files from GO and CDL/EBI
  and covers about 1600 prefixes (have not looked for overlap)
     [db-xrefs.yaml](http://current.geneontology.org/metadata/db-xrefs.yaml)  
