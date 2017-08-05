@@ -14,10 +14,10 @@ If a registry implements their service in a way that the question
   _Do you have a page for this __prefix__?_ 
 
   can be answered with http status codes then the base URL is added to
- the local ```registry.txt```
+ the local [registry_url.txt](file://registry_url.txt)
 
-note: a couple of them return a _wrong_ (500 server error) code
-should try to get them fixed
+    note: A couple of them return a _wrong_ (500 server error) code.  
+    We should try to get them fixed.
 
 - Okay  
  It the data file the site is generated with is available use the data directly.  
@@ -26,7 +26,7 @@ should try to get them fixed
     [db-xrefs.yaml](http://current.geneontology.org/metadata/db-xrefs.yaml)  
     [cdl_ebi_prefixes.yaml](https://n2t.net/e/cdl_ebi_prefixes.yaml)
 
-Another could be added via a SPARQL query but unless there is a very cheap
+    Another could be added via a SPARQL query but unless there is a very cheap
 way to tell if the remote has been updated it may not be worth it.
       
 

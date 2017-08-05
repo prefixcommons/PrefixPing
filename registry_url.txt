@@ -1,0 +1,7 @@
+https://scicrunch.org/resolver/ 
+http://prefix.cc/
+http://datahub.io/dataset/
+http://bio2rdf.org/lsr:
+http://lov.okfn.org/dataset/lov/vocabs/
+http://purl.bioontology.org/ontology/
+http://www.ontobee.org/browser/index.php?o=
