@@ -32,4 +32,31 @@ way to tell if the remote has been updated it may not be worth it.
 
  - Screen scraping  
   is expensive and a pain hope to avoid as much as possible,
-  so far only BioSharing falls here and I have an email in to try & rectify 
+  so far only BioSharing falls here and I have an email in to try & rectify
+
+
+# Service
+
+Have a python/flask  ```prefixping.py``` microservice working.
+
+API call is:  
+```http://<host>/prefix/foo```
+
+returns
+   
+```
+    foo FOUND
+```
+
+of it finds the namespace/prefix ```foo```
+and returns a
+   
+```page not found 404```
+
+status code if it does not find ``foo```
+
+This is in part to minimal net traffic per query
+as only the headers need to be transmitted.
+
+It probably needs to be fleshed out into a something more user friendly
+and I have only run it localy so far.
