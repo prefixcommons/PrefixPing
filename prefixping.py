@@ -131,7 +131,7 @@ def ping(qrystr):
     if qrystr in gocprefix:
         found = True
     elif qrystr in cdlebiprefix:
-        pass
+        found = True
     else:  # hit the remote sites
         for reg in regurl:
             response = requests.head(reg + qrystr)
