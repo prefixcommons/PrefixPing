@@ -1,7 +1,9 @@
 import requests
 import yaml
 import os
-from flask import Flask, url_for, abort
+import re
+import json
+from flask import Flask, url_for  # , abort
 from datetime import datetime
 app = Flask(__name__)
 
@@ -12,18 +14,20 @@ app = Flask(__name__)
 
     This should sit on the web somewhere and you send it a string
     and it lets you know if it has found it registered somewhere.
-    
+
     That is: yes/no.
 
-    As such you do not even need to transmit pages ('cept humans will want them)
+    As such you do not even need to transmit pages
+    ('cept humans will want them)
 
     http head requests and the returned status codes is enough.
-    
+
     so that is where we will are. next we start pileing on the request forms
     and beautiful search results ...
     hopefully never aproaching the 1Meg page just to say "nope" a source does.
-     
+
 '''
+
 
 def fetch_regurl():
     '''
@@ -117,6 +121,37 @@ gocprefix = fetch_go()
 cdlebiprefix = fetch_cdlebi()
 # prefixes = union(gocprefix[1:], cdlebiprefix[1:])
 
+# blurb to return when the string does not parse
+howto = 'letter followed by one or more letters, digits, or dash(dot)'
+
+dot_whinge = '''
+    prefix accepted with prejudice.
+    dot is best left delimiting trailing version numbers.
+    please consider replacing dot with dash.
+    Thanks,  The Management
+'''
+
+
+def sanitize(tainted):
+    '''
+        a letter followed a handful of alphanums, hyphen
+        not including underscore or colon
+        as they are expected to delimit the local id
+        dots should be for trailing versions on the local id (but are not)
+        spaces should get you shot.
+        need at least two chars (would prefer more)
+        limiting to 16 chars (would prefer less)
+
+        :return: safer string or None
+    '''
+    # penultimat = 32
+    match = re.match(r'[a-zA-Z][0-9a-zA-Z.-]{1,32}', tainted)
+    if not match:
+        pfx = None
+    else:  # limit to first acceptable part
+        pfx = match.group(0)
+    return pfx
+
 
 @app.route('/')
 def hello_world():
@@ -126,27 +161,54 @@ def hello_world():
 
 @app.route('/prefix/<string:qrystr>', methods=['GET'])
 def ping(qrystr):
-    # sanitize input
-    found = False
-    if qrystr in gocprefix:
-        found = True
-    elif qrystr in cdlebiprefix:
-        found = True
-    else:  # hit the remote sites
-        for reg in regurl:
-            response = requests.head(reg + qrystr)
-            if response.status_code == requests.codes.ok:
-                found = True
-                break
+    pfx = sanitize(qrystr)
+    result = {'user_query': qrystr, 'hits': 0, 'miss': 0}
+    if pfx is not None:
+        result['accepted_prefix'] = pfx
+        result['sources'] = {}
+        if pfx == qrystr:
+            if re.search(r'\.', pfx) is not None:
+                result['status'] = dot_whinge
+            else:
+                result['status'] = 'prefix accepted'
 
-    if not found:
-        # works but 
-        # need to find a way to return more helpful page here
-        # without messing up this default for other cases
-        return abort(404)  
-        
+            result['sources']['GO'] = {
+                'url': 'http://current.geneontology.org/metadata/db-xrefs.yaml'}
+            if pfx in gocprefix:
+                result['sources']['GO']['registered'] = True
+                result['hits'] += 1
+            else:
+                result['sources']['GO']['registered'] = False
+                result['miss'] += 1
+            result['sources']['N2T'] = {
+                'url':  'https://n2t.net/e/cdl_ebi_prefixes.yaml'}
+            if pfx in cdlebiprefix:
+                result['sources']['N2T']['registered'] = True
+                result['hits'] += 1
+            else:
+                result['sources']['N2T']['registered'] = False
+                result['miss'] += 1
+            # hit the remote sites
+            for reg in regurl:
+                response = requests.head(regurl[reg] + pfx)
+                result['sources'][reg] = {'url': regurl[reg]}
+                if response.status_code == requests.codes.ok:
+                    result['sources'][reg]['registered'] = True
+                    result['hits'] += 1
+                else:
+                    result['sources'][reg]['registered'] = False
+                    result['miss'] += 1
+
+        else:
+            # only accepting part of the beginning of the prefix to check
+            result['status'] = 'prefix only partialy accepted'
+            result['comment'] = howto
     else:
-        return qrystr + ' FOUND'
+        # something very wrong with the input
+        result['status'] = 'query prefix NOT accepted'
+        result['comment'] = howto
+
+    return json.dumps(result)
 
 
 @app.route('/refresh/', methods=['GET'])
@@ -156,6 +218,8 @@ def refresh():
     (hint it is not flask.g nor flask.session)
     this will be made to make more sense
     '''
+    # relying on side effects
     gocprefix = fetch_go()
     cdlebiprefix = fetch_cdlebi()
+
     return  # union(gocprefix[1:], cdlebiprefix[1:])

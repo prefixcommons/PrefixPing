@@ -1,10 +1,11 @@
 # Registery URL
-[
-    'https://scicrunch.org/resolver/', 
-    'http://prefix.cc/',
-    'http://datahub.io/dataset/',
-    'http://bio2rdf.org/lsr:',
-    'http://lov.okfn.org/dataset/lov/vocabs/',
-    'http://purl.bioontology.org/ontology/',
-    'http://www.ontobee.org/browser/index.php?o='
-]
+---
+{
+    'scicrunch': 'https://scicrunch.org/resolver/', 
+    'prefix' : 'http://prefix.cc/',
+    'datahub': 'http://datahub.io/dataset/',
+    'bio2rdf': 'http://bio2rdf.org/lsr:',
+    'lov': 'http://lov.okfn.org/dataset/lov/vocabs/',
+    'bioontology': 'http://purl.bioontology.org/ontology/',
+    'ontobee': 'http://www.ontobee.org/browser/index.php?o='
+}
