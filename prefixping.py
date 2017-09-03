@@ -82,7 +82,7 @@ def fetch_go():
             print('Error no local cache of ' + gocprefixfile + ' available')
             local_datetime = None
 
-    return gocprefix
+    return [word.lower() for word in gocprefix]
 
 
 def fetch_cdlebi():
@@ -144,8 +144,9 @@ def sanitize(tainted):
 
         :return: safer string or None
     '''
-    # penultimat = 32
-    match = re.match(r'[a-zA-Z][0-9a-zA-Z.-]{1,32}', tainted)
+    penultimat = 32
+    match = re.match(
+        r'[a-zA-Z][0-9a-zA-Z.-]{1,' + str(penultimat) + '}', tainted)
     if not match:
         pfx = None
     else:  # limit to first acceptable part
@@ -161,12 +162,12 @@ def hello_world():
 
 @app.route('/prefix/<string:qrystr>', methods=['GET'])
 def ping(qrystr):
-    pfx = sanitize(qrystr)
+    pfx = sanitize(qrystr).lower()
     result = {'user_query': qrystr, 'hits': 0, 'miss': 0}
     if pfx is not None:
         result['accepted_prefix'] = pfx
         result['sources'] = {}
-        if pfx == qrystr:
+        if len(pfx) == len(qrystr):
             if re.search(r'\.', pfx) is not None:
                 result['status'] = dot_whinge
             else:
