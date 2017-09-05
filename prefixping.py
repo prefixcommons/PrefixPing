@@ -174,7 +174,9 @@ def ping(qrystr):
                 result['status'] = 'prefix accepted'
 
             result['sources']['GO'] = {
-                'url': 'http://current.geneontology.org/metadata/db-xrefs.yaml'}
+                'uri': 'http://current.geneontology.org/metadata/db-xrefs.yaml',
+                'url': 'http://amigo2.berkeleybop.org/xrefs#'
+            }
             if pfx in gocprefix:
                 result['sources']['GO']['registered'] = True
                 result['hits'] += 1
@@ -182,7 +184,8 @@ def ping(qrystr):
                 result['sources']['GO']['registered'] = False
                 result['miss'] += 1
             result['sources']['N2T'] = {
-                'url':  'https://n2t.net/e/cdl_ebi_prefixes.yaml'}
+                'uri':  'https://n2t.net/e/cdl_ebi_prefixes.yaml',
+                'url':  'http://identifiers.org/'}
             if pfx in cdlebiprefix:
                 result['sources']['N2T']['registered'] = True
                 result['hits'] += 1
@@ -206,7 +209,7 @@ def ping(qrystr):
             result['comment'] = howto
     else:
         # something very wrong with the input
-        result['status'] = 'query prefix NOT accepted'
+        result['status'] = 'NOPE! query prefix NOT accepted'
         result['comment'] = howto
 
     return json.dumps(result)
