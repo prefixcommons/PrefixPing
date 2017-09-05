@@ -7,11 +7,11 @@ Check a number of life science registries to see if a string has been claimed as
 ### Jupyter notebook
 A remnant of initial exploration which can be safely ignored. 
 
-### Specifics
+### Specifics  
 
 Taking a two (hopefully not three) pronged approach
 
-- Easy
+- Easy  
 If a registry implements their service in a way that the question  
 
   _Do you have a page for this __prefix__?_
@@ -21,11 +21,10 @@ If a registry implements their service in a way that the question
 
     note: A couple of them return a _wrong_ (500 server error) code.
     We should try to get them fixed.  
-
-    We have extended the 'short circuit Y/N' approach to return a more comprehensive report
+    _Update_ We have extended the 'short circuit Y/N' approach to return a more comprehensive report
     whether the prefix has been found before or not so return code matter much less now.   
 
-- Okay
+- Okay  
  It the data file the site is generated from is available use that data directly.
  Currently this is in the form of yaml files from GO and CDL/EBI
  and covers about 1,000 prefixes (have not looked for overlap)
@@ -36,8 +35,8 @@ If a registry implements their service in a way that the question
 way to tell if the remote has been updated it may not be worth it.
 
 
- - Screen scraping
-  is expensive and a pain hope to avoid as much as possible,
+ - Screen scraping  
+  It is expensive and a pain; hope to avoid as much as possible,
   so far only one source falls here and I have an email in to try & rectify
 
 
@@ -60,16 +59,16 @@ should be running on
 
 returns a json blob with the source registries queried and the result of those query
 
-### Filtering
+### Filtering  
 
-We want to promote sane prefixes so as with xml Qnames,
+We want to promote sane prefixes, so as with xml Qnames
 they must begin with a letter and not contain a colon.
 Since CURIEs interchange colon with underscore for resolvability
 prefixes should not contain underscores either.  
 
-Dots are best left to delimit version numbers at the end of a local-ID
-but there are legacy identifiers (and schemes) using them now so they
-are grudging allowed.  
+Dots are best left to delimit the version number at the end of a local-ID
+but there are legacy identifiers (and schemes) using them within curie prefixes
+now so they are grudging allowed.  
 
 In terms of prefix length; one letter is too short, a whole line is too long.
 Two letters is still pretty short but we have GO: (Gene Ontology)
