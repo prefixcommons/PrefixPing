@@ -4,12 +4,15 @@
 
 Check a number of life science registries to see if a string has been claimed as a namespace.
 
+### Jupyter notebook
+A Remnant of initial exploration which can be safely ignored 
+
 ### Specifics
 
 Taking a two (hopefully not three) pronged approach
 
 - Easy
-If a registry implements their service in a way that the question
+If a registry implements their service in a way that the question  
 
   _Do you have a page for this __prefix__?_
 
@@ -32,7 +35,7 @@ way to tell if the remote has been updated it may not be worth it.
 
  - Screen scraping
   is expensive and a pain hope to avoid as much as possible,
-  so far only BioSharing falls here and I have an email in to try & rectify
+  so far only one source falls here and I have an email in to try & rectify
 
 
 # Service
@@ -52,8 +55,26 @@ should be running on
 ### API call is:
 ```http://<host>/prefix/foo```
 
-We want to promote sane prefixes so as with xml Qnames they must begin with a letter
+returns a json blob with the source registries queried and the result of those query
 
+### Filtering
 
-returns a json blob
-with the source registries queried and the result of that query
+We want to promote sane prefixes so as with xml Qnames,
+they must begin with a letter and not contain a colon.
+Since CURIEs interchange colon with underscore for resolvability
+prefixes should not contain underscores either.  
+
+Dots are best left to delimit version numbers at the end of a local-ID
+but there are legacy identifiers (and schemes) using them now so they
+are grudging allowed.  
+
+In terms of prefix length; one letter is too short, a whole line is too long.
+Two letters is still pretty short but we have GO: (Gene Ontoloyy)
+looking through the ~600 I have access too, they average 7 or 8 characters
+the longest is 33. which is where I am setting the initial size limit.  
+
+Case, mixed case can improve readibility and is encouraged but it cannot be
+considered when deciding if a prefix is taken or exists. For sources we have
+access to or influence with searching over lowercased prefixes will be most efficent.  
+
+TODO: Still need to check/confirm behavoir of remote systems we have no access to.
