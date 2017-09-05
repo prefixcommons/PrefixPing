@@ -5,7 +5,7 @@
 Check a number of life science registries to see if a string has been claimed as a namespace.
 
 ### Jupyter notebook
-A Remnant of initial exploration which can be safely ignored 
+A remnant of initial exploration which can be safely ignored. 
 
 ### Specifics
 
@@ -17,10 +17,13 @@ If a registry implements their service in a way that the question
   _Do you have a page for this __prefix__?_
 
   can be answered with http status codes then the base URL is added to
- the local [registry_url.txt](https://github.com/TomConlin/PrefixPing/blob/master/registry_url.yaml)
+ the local [registry_url.txt](https://raw.githubusercontent.com/prefixcommons/PrefixPing/master/registry_url.yaml)
 
     note: A couple of them return a _wrong_ (500 server error) code.
-    We should try to get them fixed.
+    We should try to get them fixed.  
+
+    We have extended the 'short circuit Y/N' approach to return a more comprehensive report
+    whether the prefix has been found before or not so return code matter much less now.   
 
 - Okay
  It the data file the site is generated from is available use that data directly.
@@ -69,12 +72,12 @@ but there are legacy identifiers (and schemes) using them now so they
 are grudging allowed.  
 
 In terms of prefix length; one letter is too short, a whole line is too long.
-Two letters is still pretty short but we have GO: (Gene Ontoloyy)
+Two letters is still pretty short but we have GO: (Gene Ontology)
 looking through the ~600 I have access too, they average 7 or 8 characters
 the longest is 33. which is where I am setting the initial size limit.  
 
-Case, mixed case can improve readibility and is encouraged but it cannot be
+Case, mixed case can improve readability and is encouraged but it cannot be
 considered when deciding if a prefix is taken or exists. For sources we have
-access to or influence with searching over lowercased prefixes will be most efficent.  
+access to or influence with searching over lowercased prefixes will be most efficient.  
 
-TODO: Still need to check/confirm behavoir of remote systems we have no access to.
+TODO: Still need to check/confirm behavior of remote systems we have no access to.
