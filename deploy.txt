@@ -1,0 +1,25 @@
+on beta
+
+
+python3 exists
+
+sudo apt-get install python3-venv
+
+cd /srv/PrefixCommons/PrefixPing
+
+python3 -m venv prefixping
+
+source source /srv/PrefixCommons/PrefixPing/prefixping/bin/activate
+# to end 'deactivate'
+
+# if needed
+# pip3 install --upgrade pip
+
+pip3 freeze prefixping.py > requirements.txt
+
+
+pip3 install -r requirements.txt
+
+#############################################
+
+# http://flask.pocoo.org/docs/0.12/deploying/fastcgi/#configuring-nginx

@@ -227,3 +227,8 @@ def refresh():
     cdlebiprefix = fetch_cdlebi()
 
     return  # union(gocprefix[1:], cdlebiprefix[1:])
+
+
+#  for local testing
+if __name__ == "__main__":
+    application.run(host='0.0.0.0')    
