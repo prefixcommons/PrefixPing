@@ -175,22 +175,21 @@ def ping(qrystr):
 
             result['sources']['GO'] = {
                 'uri': 'http://current.geneontology.org/metadata/db-xrefs.yaml',
-                'url': 'http://amigo2.berkeleybop.org/xrefs#',
-                'link': 'http://amigo2.berkeleybop.org/xrefs#' + pfx
-            }
+                'url': 'http://amigo2.berkeleybop.org/xrefs#'}
             if pfx in gocprefix:
                 result['sources']['GO']['registered'] = True
                 result['hits'] += 1
+                result['sources']['GO']['link'] = 'http://amigo2.berkeleybop.org/xrefs#' + pfx
             else:
                 result['sources']['GO']['registered'] = False
                 result['miss'] += 1
             result['sources']['N2T'] = {
                 'uri':  'https://n2t.net/e/cdl_ebi_prefixes.yaml',
-                'url':  'http://identifiers.org/',
-                'link': 'http://identifiers.org/' + pfx}
+                'url':  'http://identifiers.org/'}
             if pfx in cdlebiprefix:
                 result['sources']['N2T']['registered'] = True
                 result['hits'] += 1
+                result['sources']['N2T']['link'] = 'http://identifiers.org/' + pfx
             else:
                 result['sources']['N2T']['registered'] = False
                 result['miss'] += 1
@@ -198,11 +197,11 @@ def ping(qrystr):
             for reg in regurl:
                 response = requests.head(regurl[reg] + pfx)
                 result['sources'][reg] = {
-                    'url': regurl[reg],
-                    'link': regurl[reg] + pfx}
+                    'url': regurl[reg]}
                 if response.status_code == requests.codes.ok:
                     result['sources'][reg]['registered'] = True
                     result['hits'] += 1
+                    result['sources'][reg]['link'] = regurl[reg] + pfx
                 else:
                     result['sources'][reg]['registered'] = False
                     result['miss'] += 1
