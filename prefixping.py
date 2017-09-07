@@ -162,7 +162,8 @@ def hello_world():
 
 @app.route('/prefix/<string:qrystr>', methods=['GET'])
 def ping(qrystr):
-    pfx = sanitize(qrystr).lower()
+    qry = sanitize(qrystr)
+    pfx = qry.lower()
     result = {'user_query': qrystr, 'hits': 0, 'miss': 0}
     if pfx is not None:
         result['accepted_prefix'] = pfx
@@ -179,7 +180,7 @@ def ping(qrystr):
             if pfx in gocprefix:
                 result['sources']['GO']['registered'] = True
                 result['hits'] += 1
-                result['sources']['GO']['link'] = 'http://amigo2.berkeleybop.org/xrefs#' + pfx
+                result['sources']['GO']['link'] = 'http://amigo2.berkeleybop.org/xrefs#' + qry
             else:
                 result['sources']['GO']['registered'] = False
                 result['miss'] += 1
@@ -189,7 +190,7 @@ def ping(qrystr):
             if pfx in cdlebiprefix:
                 result['sources']['N2T']['registered'] = True
                 result['hits'] += 1
-                result['sources']['N2T']['link'] = 'http://identifiers.org/' + pfx
+                result['sources']['N2T']['link'] = 'http://identifiers.org/' + qry
             else:
                 result['sources']['N2T']['registered'] = False
                 result['miss'] += 1
@@ -201,7 +202,7 @@ def ping(qrystr):
                 if response.status_code == requests.codes.ok:
                     result['sources'][reg]['registered'] = True
                     result['hits'] += 1
-                    result['sources'][reg]['link'] = regurl[reg] + pfx
+                    result['sources'][reg]['link'] = regurl[reg] + qry
                 else:
                     result['sources'][reg]['registered'] = False
                     result['miss'] += 1
