@@ -31,3 +31,34 @@ and the prefixping.ini files
 
 
 uwsgi --socket 0.0.0.0:5000 --protocol=http --plugin=python3  --virtualenv=/srv/PrefixCommons/PrefixPing/prefixping --manage-script-name --mount /=prefixping:app prefixping.ini
+
+###############################################
+# FAIL set up wgsi service  upstart  FAIL 
+
+sudo cp prefixping.conf /etc/init/prefixping.conf
+
+sudo start prefixping
+
+FAIL  systemd is the default now  FAIL 
+################################################
+
+set up wgsi service  systemd
+
+sudo cp prefixping.service /etc/systemd/system/prefixping.service 
+
+sudo systemctl start prefixping
+sudo systemctl enable prefixping
+
+
+################################################
+edit nginx.conf
+
+
+# test nginx.conf
+
+sudo nginx -t
+
+# 
+sudo service nginx restart
+
+sudo systemctl restart nginx
