@@ -175,7 +175,8 @@ def ping(qrystr):
 
             result['sources']['GO'] = {
                 'uri': 'http://current.geneontology.org/metadata/db-xrefs.yaml',
-                'url': 'http://amigo2.berkeleybop.org/xrefs#'
+                'url': 'http://amigo2.berkeleybop.org/xrefs#',
+                'link': 'http://amigo2.berkeleybop.org/xrefs#' + pfx
             }
             if pfx in gocprefix:
                 result['sources']['GO']['registered'] = True
@@ -185,7 +186,8 @@ def ping(qrystr):
                 result['miss'] += 1
             result['sources']['N2T'] = {
                 'uri':  'https://n2t.net/e/cdl_ebi_prefixes.yaml',
-                'url':  'http://identifiers.org/'}
+                'url':  'http://identifiers.org/',
+                'link': 'http://identifiers.org/' + pfx}
             if pfx in cdlebiprefix:
                 result['sources']['N2T']['registered'] = True
                 result['hits'] += 1
@@ -195,7 +197,9 @@ def ping(qrystr):
             # hit the remote sites
             for reg in regurl:
                 response = requests.head(regurl[reg] + pfx)
-                result['sources'][reg] = {'url': regurl[reg]}
+                result['sources'][reg] = {
+                    'url': regurl[reg],
+                    'link': regurl[reg] + pfx}
                 if response.status_code == requests.codes.ok:
                     result['sources'][reg]['registered'] = True
                     result['hits'] += 1
@@ -231,4 +235,4 @@ def refresh():
 
 #  for local testing
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')    
+    app.run(host='0.0.0.0')
