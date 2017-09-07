@@ -29,6 +29,5 @@ pip3 install -r requirements.txt
 create wsgi.py wrapper
 and the prefixping.ini files
 
---manage-script-name --mount /prefix=prefixping:app
 
-uwsgi --socket 0.0.0.0:5000 --protocol=http --plugin=python3  --virtualenv=/srv/PrefixCommons/PrefixPing/prefixping  prefixping.ini
+uwsgi --socket 0.0.0.0:5000 --protocol=http --plugin=python3  --virtualenv=/srv/PrefixCommons/PrefixPing/prefixping --manage-script-name --mount /=prefixping:app prefixping.ini
