@@ -1,0 +1,15 @@
+# /etc/systemd/system/prefixping.service
+
+[Unit]
+Description=uWSGI instance to serve PrefixPing
+After=network.target
+
+[Service]
+User=tomc
+Group=www-data
+WorkingDirectory=/srv/PrefixCommons/PrefixPing
+Environment="PATH=/srv/PrefixCommons/PrefixPing/prefixping/bin"
+ExecStart=/srv/PrefixCommons/PrefixPing/prefixping/bin/uwsgi --ini prefixping.ini
+
+[Install]
+WantedBy=multi-user.target
