@@ -1,11 +1,21 @@
 import requests
 import yaml
 import os
+import stat
 import re
 import json
+import logging
 from flask import Flask, url_for  # , abort
 from datetime import datetime
+import email.utils as emut
+
+# Tue, 01 Aug 2017 14:14:26 GMT
+# note see http://strftime.org/
+# fmt = r'%a, %d %b %Y %H:%M:%S GMT'
+# using email.utils instead
 app = Flask(__name__)
+
+log = logging.getLogger(__name__)
 
 '''
     Note:
@@ -38,7 +48,7 @@ def fetch_regurl():
         with open('registry_url.yaml', 'r') as fh:
             regurl = yaml.load(fh)
     else:
-        print("halp. halp. I've fallen and can't get up")
+        log.warrning("halp. halp. I've fallen and can't get up")
     return regurl
 
 
@@ -46,80 +56,134 @@ def fetch_regurl():
 regurl = fetch_regurl()
 
 
-# just c&p from notebook likely needs to be less chatty
-def fetch_go():
-    '''
-        Fetches  goc yaml if there is none yet for the
-        current application context.
-    '''
-    gocurl = 'http://current.geneontology.org/metadata/db-xrefs.yaml'
-    gocprefixfile = 'gocprefix.yaml'
-    gocprefix = []
-    # Tue, 01 Aug 2017 14:14:26 GMT   note see http://strftime.org/
-    fmt = '%a, %d %b %Y %H:%M:%S GMT'
-    response = requests.get(gocurl)
+def remote_metadata(head_url):
+    remote_date = None
+    remote_size = -1
+    try:
+        response = requests.head(head_url)
+    except requests.exceptions.RequestException:
+        True
+
     if response.status_code == requests.codes.ok:
-        gocxref = yaml.load(response.text)
-        remote_last_modified = response.headers['Last-Modified']
-        remote_datetime = datetime.strptime(remote_last_modified, fmt)
-        gocprefix.append('# ' + str(remote_datetime))
-        for db in gocxref:
-            gocprefix.append(db['database'])
-        # renew local cache
-        with open(gocprefixfile, 'w') as fh:
-            yaml.dump(gocprefix, fh)
-    else:
-        print(
-            'ERROR ' + response.url + ' returned ' + str(response.status_code))
-        print('Trying local cache')
-        remote_datetime = None
-        if os.path.isfile(gocprefixfile):
-            with open(gocprefixfile, 'r') as fh:
-                gocprefix = yaml.load(fh)
-            local_datetime = gocprefix[0]
-            print('Found local cache from: ', local_datetime)
+        if 'last-modified' in response.headers:
+            date_string = response.headers['last-modified']
+            remote_date = datetime(*emut.parsedate(date_string)[:6])
         else:
-            print('Error no local cache of ' + gocprefixfile + ' available')
-            local_datetime = None
-
-    return [word.lower() for word in gocprefix]
-
-
-def fetch_cdlebi():
-    cdlebi_url = 'https://n2t.net/e/cdl_ebi_prefixes.yaml'
-    cdlebipfx = []
-    # Last modified: 2017.08.01_08.28.20
-    # fmt = '# Last modified: %Y.%m.%d_%H.%M.%S'
-    cdlebi_file = 'cdl_ebi_prefixes.yaml'
-    response = requests.get(cdlebi_url)
-    if response.status_code == requests.codes.ok:
-        cdlebiraw = response.text
-        cdlebireg = yaml.load(cdlebiraw)
-        # first_line = cdlebiraw[0:cdlebiraw.index('\n')]
-        # remote_datetime = datetime.strptime(first_line, fmt)
-    else:
-        print(
-            'ERROR ' + response.url + ' returned ' + str(response.status_code))
-        print('Trying local cache')
-        # remote_datetime = None
-        if os.path.isfile(cdlebi_file):
-            with open(cdlebi_file, 'r') as fh:
-                cdlebireg = yaml.load(fh)
-                # print('Found local cache from: ',local_datestamp)
+            log.warnning(
+                'No "Last-Modified:" header for ' + response.url)
+        if 'Content-Length' in response.headers:
+            remote_size = response.headers['Content-Length']
         else:
-            print('Error no local cache of ' + cdlebi_file + ' available')
-            # local_datetime = None
-    for reg in cdlebireg:
-        cdlebipfx.append(reg['namespace'])
+            log.warnning(
+                'No "Content-Length:" header for ' + response.url)
+    else:
+        if response.status_code >= 500:
+            log.error('Server Error: ' + str(response.status_code))
+        else:
+            log.error(
+                response.url + ' returned ' + str(response.status_code))
+    return [remote_date, remote_size]
+
+
+def local_metadata(pth):
+    local_date = None
+    local_size = -1
+    if os.path.isfile(pth):
+        local_date = datetime.fromtimestamp(
+            os.stat(pth)[stat.ST_MTIME])
+        local_size = os.stat(pth)[stat.ST_SIZE]
+    return [local_date, local_size]
+
+
+def read_yaml_array(fname, arr):
+
+    if os.path.isfile(fname):
+        with open(fname, 'r') as fh:
+            arr = yaml.load(fh)
+        local_datetime = arr[0]
+        log.info('Found local cache from: ', local_datetime)
+    else:
+        log.error("Cannot open " + fname)
+    return arr
+
+
+def fetch_prefix(lcl_file, rmt_url, process_raw):
+    '''
+    Fetches  yaml
+        if the local cache is more than  day old
+            check if the remote is newer
+            if so use and refresh cache
+        otherwise use local cache
+    '''
+
+    result_array = []
+
+    # check local cache
+    (local_date, local_size) = local_metadata(lcl_file)
+
+    # is cache more than a day old?
+    if(datetime.now() - local_date).days > 0:
+        (remote_date, remote_size) = remote_metadata(rmt_url)
+        # has the remote been updated ?
+        if remote_date is not None and remote_date > local_date:
+            log.info("Remote newer")
+            log.info('Fetching: ' + rmt_url)
+            try:
+                response = requests.get(rmt_url)
+            except requests.exceptions.RequestException:
+                True
+            #  the happy path
+            if response.status_code == requests.codes.ok:
+                rawyaml = yaml.load(response.text)
+                # remote_datetime = datetime.strptime(remote_date, fmt)
+                result_array.append('# ' + str(remote_date))
+                # source specific
+                result_array = process_raw(rawyaml, result_array)
+                # renew local cache
+                with open(lcl_file, 'w') as fh:
+                        yaml.dump(result_array, fh)
+            else:  # fetch remote failed
+                log.error(
+                    'ERROR ' + response.url + ' returned ' +
+                    str(response.status_code))
+                log.info('Trying local cache')
+                result_array = read_yaml_array(lcl_file, result_array)
+        else:
+            log.info('Remote is not newer than ' + lcl_file)
+            result_array = read_yaml_array(lcl_file, result_array)
+    else:  # cache is fresh
+        log.info('Cache ' + lcl_file + ' is less than a day old')
+        result_array = read_yaml_array(lcl_file, result_array)
+
+    return [word.lower() for word in result_array]
+
+
+# get the GO prefixes refreshing local cache as needed
+# specific GO yaml helper f(x)
+def go_proc_raw(rawyaml, rstarr):
+    for db in rawyaml:
+        rstarr.append(db['database'])
+    return rstarr
+
+
+gocurl = 'http://current.geneontology.org/metadata/db-xrefs.yaml'
+gocprefixfile = 'gocprefix.yaml'
+gocprefix = fetch_prefix(gocprefixfile, gocurl, go_proc_raw)
+
+
+# get the CDL prefixes refreshing local cache as needed
+# specific CDL yaml helper f(x)
+def cdl_proc_raw(rawyaml, rstarr):
+    for reg in rawyaml:
+        rstarr.append(reg['namespace'])
         if 'alias' in reg:  # TODO should I be including these?
-            cdlebipfx.append(reg['alias'])
+            rstarr.append(reg['alias'])
+    return rstarr
 
-    return cdlebipfx
 
-
-gocprefix = fetch_go()
-cdlebiprefix = fetch_cdlebi()
-# prefixes = union(gocprefix[1:], cdlebiprefix[1:])
+cdlebi_url = 'https://n2t.net/e/cdl_ebi_prefixes.yaml'
+cdlebi_file = 'cdl_ebi_prefixes.yaml'
+cdlebiprefix = fetch_prefix(cdlebi_file, cdlebi_url, cdl_proc_raw)
 
 # blurb to return when the string does not parse
 howto = 'letter followed by one or more letters, digits, or dash(dot)'
@@ -151,7 +215,7 @@ def sanitize(tainted):
         pfx = None
     else:  # limit to first acceptable part
         pfx = match.group(0)
-    return pfx
+    return pfx.strip()
 
 
 @app.route('/')
@@ -165,7 +229,7 @@ def ping(qrystr):
     qry = sanitize(qrystr)
     pfx = qry.lower()
     result = {'user_query': qrystr, 'hits': 0, 'miss': 0}
-    if pfx is not None:
+    if pfx is not None and pfx is not '':
         result['accepted_prefix'] = pfx
         result['sources'] = {}
         if len(pfx) == len(qrystr):
@@ -177,33 +241,49 @@ def ping(qrystr):
             result['sources']['GO'] = {
                 'uri': 'http://current.geneontology.org/metadata/db-xrefs.yaml',
                 'url': 'http://amigo2.berkeleybop.org/xrefs#'}
+
             if pfx in gocprefix:
                 result['sources']['GO']['registered'] = True
                 result['hits'] += 1
-                result['sources']['GO']['link'] = 'http://amigo2.berkeleybop.org/xrefs#' + qry
+                result['sources']['GO']['link'] = \
+                    'http://amigo2.berkeleybop.org/xrefs#' + qry
             else:
                 result['sources']['GO']['registered'] = False
                 result['miss'] += 1
+
             result['sources']['N2T'] = {
                 'uri':  'https://n2t.net/e/cdl_ebi_prefixes.yaml',
                 'url':  'http://identifiers.org/'}
             if pfx in cdlebiprefix:
                 result['sources']['N2T']['registered'] = True
                 result['hits'] += 1
-                result['sources']['N2T']['link'] = 'http://identifiers.org/' + qry
+                result['sources']['N2T']['link'] = \
+                    'http://identifiers.org/' + qry
             else:
                 result['sources']['N2T']['registered'] = False
                 result['miss'] += 1
+
             # hit the remote sites
             for reg in regurl:
-                response = requests.head(regurl[reg] + pfx)
+                response = None
+                try:
+                    response = requests.head(
+                        regurl[reg] + pfx, allow_redirects=True)
+                except requests.exceptions.RequestException:
+                    True  # that
+
                 result['sources'][reg] = {
                     'url': regurl[reg]}
                 if response.status_code == requests.codes.ok:
                     result['sources'][reg]['registered'] = True
                     result['hits'] += 1
-                    result['sources'][reg]['link'] = regurl[reg] + qry
-                else:
+                    result['sources'][reg]['link'] = str(regurl[reg]) + qry
+                elif response.status_code > 499 or response.status_code < 400:
+                    # non negative response
+                    result['sources'][reg]['registered'] = \
+                        'ERROR:' + str(response.status_code)
+                    result['miss'] += 1
+                else:  # non positive response
                     result['sources'][reg]['registered'] = False
                     result['miss'] += 1
 
@@ -219,16 +299,19 @@ def ping(qrystr):
     return json.dumps(result)
 
 
+# TODO Should not be needed
 @app.route('/refresh/', methods=['GET'])
-def refresh():
+def refresh(go=gocprefix, cdl=cdlebiprefix):
     '''
     after I figure out where flask persist stuff
     (hint it is not flask.g nor flask.session)
     this will be made to make more sense
+
+    fetch_prefix()  now tries to refresh automatically
     '''
     # relying on side effects
-    gocprefix = fetch_go()
-    cdlebiprefix = fetch_cdlebi()
+    # gocprefix = fetch_prefix(gocprefixfile, gocurl, go_proc_raw)
+    # cdlebiprefix = fetch_prefix(cdlebi_file, cdlebi_url, cdl_proc_raw)
 
     return  # union(gocprefix[1:], cdlebiprefix[1:])
 
