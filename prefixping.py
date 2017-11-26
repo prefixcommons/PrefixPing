@@ -219,13 +219,13 @@ def sanitize(tainted):
     return pfx.strip()
 
 
-@app.route('/')
+@app.route('/ping/')
 def hello_world():
     route_path = url_for('ping', qrystr='XYZ')
     return '<h2>Prefix Ping!</h2><br>Usage: http://<host>%s<br>' % route_path
 
 
-@app.route('/prefix/<string:qrystr>', methods=['GET'])
+@app.route('/ping/prefix/<string:qrystr>', methods=['GET'])
 def ping(qrystr):
     qry = sanitize(qrystr)
     pfx = qry.lower()
@@ -301,7 +301,7 @@ def ping(qrystr):
 
 
 # TODO Should not be needed
-@app.route('/refresh/', methods=['GET'])
+@app.route('/ping/refresh/', methods=['GET'])
 def refresh(go=gocprefix, cdl=cdlebiprefix):
     '''
     after I figure out where flask persist stuff
