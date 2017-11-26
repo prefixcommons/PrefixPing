@@ -60,7 +60,7 @@ def remote_metadata(head_url):
     remote_date = None
     remote_size = -1
     try:
-        response = requests.head(head_url)
+        response = requests.head(head_url, allow_redirects=True)
     except requests.exceptions.RequestException:
         True
 
@@ -166,7 +166,8 @@ def go_proc_raw(rawyaml, rstarr):
     return rstarr
 
 
-gocurl = 'http://current.geneontology.org/metadata/db-xrefs.yaml'
+# gocurl = 'http://current.geneontology.org/metadata/db-xrefs.yaml'
+gocurl = 'https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml'
 gocprefixfile = 'gocprefix.yaml'
 gocprefix = fetch_prefix(gocprefixfile, gocurl, go_proc_raw)
 
