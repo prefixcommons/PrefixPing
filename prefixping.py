@@ -69,12 +69,12 @@ def remote_metadata(head_url):
             date_string = response.headers['last-modified']
             remote_date = datetime(*emut.parsedate(date_string)[:6])
         else:
-            log.warnning(
+            log.warning(
                 'No "Last-Modified:" header for ' + response.url)
         if 'Content-Length' in response.headers:
             remote_size = response.headers['Content-Length']
         else:
-            log.warnning(
+            log.warning(
                 'No "Content-Length:" header for ' + response.url)
     else:
         if response.status_code >= 500:
