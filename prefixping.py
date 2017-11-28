@@ -165,7 +165,7 @@ def go_proc_raw(rawyaml, rstarr):
         rstarr.append(db['database'])
     return rstarr
 
-
+# till geneontology file is fixed
 # gocurl = 'http://current.geneontology.org/metadata/db-xrefs.yaml'
 gocurl = 'https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml'
 gocprefixfile = 'gocprefix.yaml'
@@ -300,21 +300,25 @@ def ping(qrystr):
     return json.dumps(result)
 
 
-# TODO Should not be needed
+# TODO  this keepalive may not be needed with uwsgi parameter tweaks
+@app.route('/ping/pong/', methods=['GET'])
+def pong():
+    (go_date, go_size) = local_metadata(gocprefixfile)
+    (cdl_date, cdl_size) = local_metadata(cdlebi_file)
+    # return nonzero if the app's local cache needs refreshing
+    age = (datetime.now() - go_date).days | (datetime.now() - cdl_date).days
+    return json.dumps({'cachedays': age})
+
+
 @app.route('/ping/refresh/', methods=['GET'])
 def refresh(go=gocprefix, cdl=cdlebiprefix):
     '''
-    after I figure out where flask persist stuff
-    (hint it is not flask.g nor flask.session)
-    this will be made to make more sense
-
+    was an alternative method of refreshing caches but
     fetch_prefix()  now tries to refresh automatically
+    and have not rewritten this with new methods
     '''
-    # relying on side effects
-    # gocprefix = fetch_prefix(gocprefixfile, gocurl, go_proc_raw)
-    # cdlebiprefix = fetch_prefix(cdlebi_file, cdlebi_url, cdl_proc_raw)
 
-    return  # union(gocprefix[1:], cdlebiprefix[1:])
+    return "{'implemented': 'False'}"
 
 
 #  for local testing
