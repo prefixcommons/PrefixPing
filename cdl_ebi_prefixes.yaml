@@ -1,24 +1,26 @@
-# Last modified: 2017.08.01_08.28.20
+# Last modified: 2017.11.26_08.29.07
+# Updates available at: https://n2t.net/ark:/13030/c7xk84q2j
+# To request a prefix: https://n2t.net/e/prefix_request
 #
-# This is a YAML-format registry that enumerates the identifier prefixes
-# (identifier schemes) jointly recognized by the California Digital Library
-# (CDL) and the European Molecular Biology Laboratory - European
-# Bioinformatics Institute (EMBL-EBI) and their respective meta-resolvers:
+# This is a YAML-format registry that enumerates the Compact Identifier
+# prefixes (id schemes) jointly recognized by the California Digital
+# Library (CDL) and the European Molecular Biology Laboratory - European
+# Bioinformatics Institute (EMBL-EBI) and their respective meta-resolvers,
 #
 #    n2t.net and identifiers.org.
 #
-# A prefix consists of a namespace optionally preceded by a provider code
+# A prefix consists of a namespace, optionally preceded by a provider code
 # and a '/' character, for example, "pdb", "pmid", "taxon", and "rcsb/pdb".
 #
 #    <prefix> := [ <provider> + '/' ] + <namespace>
 #
-# A published compact identifier (sometimes called a CURIE) is a prefix, a
-# colon, and a scheme-local identifier (eg, a database accession number):
+# A published compact identifier (compact-id) consists of a prefix, a colon,
+# and a scheme-local identifier (eg, a database accession number):
 #
-#    <CURIE> := <prefix> + ':' + <prefix-specific-identifier>
+#    <compact-id> := <prefix> + ':' + <prefix-specific-identifier>
 #
-# A CURIE is made actionable by embedding it as the path part of a URL and
-# using one of the meta-resolvers for the hostname, for example,
+# A compact-id is made actionable by using it as the path part of a URL
+# and prepending one of the meta-resolvers for the hostname, for example,
 #
 #     n2t.net/pmid:1234567
 #     identifiers.org/pmid:1234567
@@ -26,37 +28,37 @@
 # This registry file is a series of YAML blocks, each ending in a blank line.
 # The elements in a block are defined as follows:
 #
-# namespace --
-#   A string of lowercase letters and digits defining the identifier type,
-#   typically for a given collection or database. The combination of
-#   namespace prefix and provider (below) must be unique across the registry.
-#   This element is required.
+# namespace (required)
+#   A string of lowercase letters and digits defining the identifier
+#   collection, typically for a given database. The combination of
+#   namespace prefix and provider (below) must be unique across the
+#   registry.
 #
-# provider --
+# provider (optional)
 #   A string of lowercase letters and digits defining one provider for an
 #   identifier namespace prefix. The combination of namespace prefix and
-#   provider (above) must be unique across the registry. If this element is
-#   not present, only one provider is assumed. 
+#   provider (above) must be unique across the registry.
 #
-# alias --
+# alias (optional)
 #   A string of lowercase letters and digits specifying an alternate name for
 #   the namespace. The combination of alias prefix, or namespace prefix, and
-#   provider (below) must be unique across the registry. This element is
-#   optional.
+#   provider (below) must be unique across the registry.
 #
-# title --
-#   A text string containing the full name of the prefix. This element is
-#   required.
+# title (required)
+#   A text string containing the full name of the prefix.
 #
-# homepage --
+# homepage (required)
 #   A URL that leads to a web page with more information about the prefix. If
 #   the page contains schema.org tags, the meta-resolver may exploit them for
-#   descriptive information. This element is optional.
+#   descriptive information.
 #
-# note --
-#   A text string containing arbitrary annotations. This element is optional
-#   and may be repeated.
+# note (optional, repeatable)
+#   A text string containing arbitrary annotations.
 #
+# The contents of this file are dedicated to the public domain under the terms
+# of CC0 1.0 Universal https://creativecommons.org/publicdomain/zero/1.0/
+# and FAIRsharing entry https://fairsharing.org/bsg-s001091.  Please visit
+# https://www.ebi.ac.uk/support/identifiers.org for questions or feedback.
 
 - namespace: 3dmet
   title: 3DMET database
@@ -87,6 +89,10 @@
   title: AFTOL at University of Minnesota
   homepage: http://aftol.org/data.php
 
+- namespace: agricola
+  title: AGRICOLA at National Agricultural Library
+  homepage: http://agricola.nal.usda.gov/
+
 - namespace: allergome
   title: Allergome at Rome
   homepage: http://www.allergome.org/
@@ -102,6 +108,10 @@
 - namespace: antweb
   title: AntWeb at California Academy of Sciences
   homepage: http://www.antweb.org/
+
+- namespace: aop
+  title: AOPWiki
+  homepage: https://aopwiki.org/
 
 - namespace: apd
   title: APD at Nebraska
@@ -123,10 +133,6 @@
   title: ARDB at University of Maryland
   homepage: http://ardb.cbcb.umd.edu/
 
-- namespace: argicola
-  title: AGRICOLA at National Agricultural Library
-  homepage: http://agricola.nal.usda.gov/
-
 - namespace: ark
   title: ARK via the Name-to-Thing resolver.
   homepage: http://n2t.net/
@@ -140,6 +146,10 @@
   provider: ebi
   title: ArrayExpress Platform at EBI
   homepage: http://www.ebi.ac.uk/arrayexpress/
+
+- namespace: arraymap
+  title: ArrayMap
+  homepage: https://www.arraymap.org
 
 - namespace: arxiv
   title: Cornell University arXiv
@@ -207,6 +217,10 @@
 - namespace: beetlebase
   title: BeetleBase at Kansas State University
   homepage: http://beetlebase.org/
+
+- namespace: begdb
+  title: Benchmark Energy & Geometry Database
+  homepage: http://www.begdb.com
 
 - namespace: bgee.family
   title: Bgee at Lausanne
@@ -323,14 +337,14 @@
   title: BioSample at NCBI
   homepage: http://www.ncbi.nlm.nih.gov/biosample
 
-- namespace: biosharing
-  title: BioSharing at University of Oxford
-  homepage: https://www.biosharing.org/
-
 - namespace: biosystems
   provider: ncbi
   title: BioSystems database at NCBI
   homepage: http://www.ncbi.nlm.nih.gov/biosystems/
+
+- namespace: biotools
+  title: BioTools
+  homepage: https://bio.tools/
 
 - namespace: bitterdb.cpd
   title: BitterDB Compound at The Hebrew University of Jerusalem
@@ -378,6 +392,10 @@
   title: CABRI Cell Lines catalogue in Genova (SRS)
   homepage: http://www.cabri.org/
 
+- namespace: cameo
+  title: CAMEO
+  homepage: https://cameo3d.org
+
 - namespace: caps
   title: CAPS-DB at Leeds Institute of Molecular Medicine
   homepage: http://www.bioinsilico.org/cgi-bin/CAPSDB/staticHTML/home
@@ -385,6 +403,10 @@
 - namespace: cas
   title: CAS through Common Chemistry
   homepage: http://commonchemistry.org
+
+- namespace: cath
+  title: CATH Node through UCL
+  homepage: http://www.cathdb.info
 
 - namespace: cath.domain
   title: CATH domain at UCL
@@ -549,6 +571,10 @@
   title: Cooperative Patent Classification at Espace
   homepage: http://worldwide.espacenet.com/classification
 
+- namespace: crisprdb
+  title: CRISPRdb
+  homepage: http://crispr.i2bc.paris-saclay.fr/
+
 - namespace: cryptodb
   title: CryptoDB at EuPathDB
   homepage: http://cryptodb.org/cryptodb/
@@ -585,6 +611,10 @@
 - namespace: cygd
   title: CYGD PEDANT Interface at Biomax Informatics
   homepage: http://pedant.helmholtz-muenchen.de/pedant3htmlview/pedant3view?Method=start_method&Db=p3_p13838_Sac_cerev
+
+- namespace: d1id
+  title: DataONE
+  homepage: https://www.dataone.org
 
 - namespace: dailymed
   title: DailyMed at NLM
@@ -666,10 +696,6 @@
 - namespace: doi
   title: Digital Object Identifier
   homepage: http://www.doi.org/
-
-- namespace: doid
-  title: Human Disease Ontology at Northwestern University
-  homepage: http://disease-ontology.org/
 
 - namespace: doid
   provider: bptl
@@ -902,6 +928,10 @@
   title: EPD at Swiss Institute of Bioinformatics
   homepage: http://epd.vital-it.ch/
 
+- namespace: erv
+  title: Human Endogenous Retrovirus Database
+  homepage: https://herv.img.cas.cz/
+
 - namespace: euclinicaltrials
   title: EU Clinical Trials at  European Medicines Agency
   homepage: https://www.clinicaltrialsregister.eu/
@@ -917,6 +947,10 @@
 - namespace: exac.variant
   title: ExAC Variant at Exome Aggregation Consortium
   homepage: http://exac.broadinstitute.org/
+
+- namespace: fairsharing
+  title: FAIRSharing at University of Oxford
+  homepage: https://fairsharing.org/
 
 - namespace: fbol
   title: Fungal Barcode at Fungal Biodiversity Centre
@@ -976,6 +1010,10 @@
   title: GABI at Max Planck
   homepage: http://www.gabipd.org/
 
+- namespace: gdc
+  title: Genomic Data Commons
+  homepage: https://gdc.cancer.gov
+
 - namespace: genatlas
   title: Genatlas at Paris Descartes University
   homepage: http://genatlas.medecine.univ-paris5.fr/
@@ -1030,6 +1068,10 @@
   title: GlycomeDB carbohydrate structure database
   homepage: http://www.glycome-db.org/showMenu.action?major=database
 
+- namespace: glytoucan
+  title: The Glycan Repository
+  homepage: https://glytoucan.org
+
 - namespace: gmd
   title: Golm Metabolome Database at Max Planck Institute of Molecular Plant Physiology
   homepage: http://gmd.mpimp-golm.mpg.de/
@@ -1049,6 +1091,10 @@
 - namespace: gmd.ref
   title: Golm Metabolome Database (Reference Substance) at Max Planck Institute of Molecular Plant Physiology
   homepage: http://gmd.mpimp-golm.mpg.de/
+
+- namespace: gnpis
+  title: GnpIS
+  homepage: https://urgi.versailles.inra.fr/gnpis/ 
 
 - namespace: go
   provider: amigo
@@ -1257,6 +1303,10 @@
   title: HUGE at Kazusa DNA Research Institute
   homepage: http://www.kazusa.or.jp/huge/
 
+- namespace: iao
+  title: IAO through Ontobee
+  homepage: http://www.ontobee.org/ontology/IAO
+
 - namespace: icd
   title: International Statistical Classification of Diseases and Related Health Problems
   homepage: http://www.who.int/classifications/icd/en/
@@ -1322,6 +1372,14 @@
   title: INSDC through European Nucleotide Archive (ENA)
   homepage: http://www.ebi.ac.uk/ena/
 
+- namespace: insdc.cds
+  title: INSDC CDS through NCBI
+  homepage: https://www.ncbi.nlm.nih.gov/protein/
+
+- namespace: insdc.gca
+  title: Genome assembly database NCBI
+  homepage: https://www.ncbi.nlm.nih.gov/assembly/
+
 - namespace: insdc.sra
   provider: ncbi
   title: Sequence Read Archive at NCBI
@@ -1356,8 +1414,8 @@
   homepage: http://wodaklab.org/iRefWeb/
 
 - namespace: isbn
-  title: ISBNDB - ISBN Database
-  homepage: http://isbndb.com/
+  title: ISBN database at WorldCat
+  homepage: http://www.worldcat.org/
 
 - namespace: isfinder
   title: IS Finder at CNRS
@@ -1464,6 +1522,10 @@
   title: Ligand-Gated Ion Channel database at EBI
   homepage: http://www.ebi.ac.uk/compneur-srv/LGICdb/LGICdb.php
 
+- namespace: licebase
+  title: LiceBase
+  homepage: https://licebase.org 
+
 - namespace: ligandbox
   title: LigandBox at
   homepage: http://ligandbox.protein.osaka-u.ac.jp/ligandbox//cgi-bin/index.cgi?LANG=en
@@ -1498,8 +1560,8 @@
   homepage: http://www.lipidmaps.org
 
 - namespace: lrg
-  title: Locus Reference Genomic through Ensembl mirror (US east)
-  homepage: http://useast.ensembl.org/
+  title: Locus Reference Genomic through Ensembl mirror (US west)
+  homepage: http://uswest.ensembl.org/
 
 - namespace: ma
   title: Mouse Adult Gross Anatomy at The Jackson Laboratory
@@ -1588,17 +1650,25 @@
   title: MetaboLights at EBI
   homepage: http://www.ebi.ac.uk/metabolights/
 
+- namespace: metacyc.compound
+  title: MetaCyc Metabolic Pathway Database
+  homepage: https://metacyc.org
+
+- namespace: metacyc.reaction
+  title: MetaCyc Metabolic Pathway Database - Reaction
+  homepage: https://metacyc.org
+
 - namespace: metanetx.chemical
   title: MetaNetX chemical at SIB Swiss Institute of Bioinformatics
-  homepage: http://metanetx.org/
+  homepage: http://www.metanetx.org/
 
 - namespace: metanetx.compartment
   title: MetaNetX compartment at SIB Swiss Institute of Bioinformatics
-  homepage: http://metanetx.org/
+  homepage: http://www.metanetx.org/
 
 - namespace: metanetx.reaction
   title: MetaNetX reaction at SIB Swiss Institute of Bioinformatics
-  homepage: http://metanetx.org/
+  homepage: http://www.metanetx.org/
 
 - namespace: metlin
   title: METLIN at Scripps Center, Molecular Biology and Center for Mass Spectrometry, La Jolla
@@ -1663,6 +1733,18 @@
 - namespace: mmdb
   title: MMDB at NCBI
   homepage: http://www.ncbi.nlm.nih.gov/sites/entrez?db=structure
+
+- namespace: mmp.cat
+  title: MarCat through SfB
+  homepage: https://mmp.sfb.uit.no/databases/marcat/
+
+- namespace: mmp.db
+  title: MarDB through SfB
+  homepage: https://mmp.sfb.uit.no/databases/mardb/
+
+- namespace: mmp.ref
+  title: MarRef through SfB
+  homepage: https://mmp.sfb.uit.no/databases/marref/
 
 - namespace: mmrrc
   title: MMRRC  at University of North Carolina
@@ -1761,6 +1843,14 @@
   title: MycoBank at Fungal Biodiversity Centre
   homepage: http://www.mycobank.org/
 
+- namespace: mzspec
+  title: Universal Spectrum Identifier through Peptide Atlas
+  homepage: https://db.systemsbiology.net/sbeams/cgi/PeptideAtlas/ShowObservedSpectrum
+
+- namespace: napdi
+  title: Natural Product-Drug Interaction Research Data Repository
+  homepage: https://repo.napdi.org/
+
 - namespace: napp
   title: NAPP at CNRS
   homepage: http://napp.u-psud.fr/
@@ -1833,6 +1923,10 @@
   title: nextProt at Swiss Institute of Bioinformatics
   homepage: http://www.nextprot.org/
 
+- namespace: ngl
+  title: NASA GeneLab
+  homepage: https://genelab-data.ndc.nasa.gov/genelab/
+
 - namespace: niaest
   title: NIAEST at National Institute on Aging
   homepage: http://lgsun.grc.nia.nih.gov/cDNA/
@@ -1890,6 +1984,11 @@
 - namespace: omim
   title: OMIM at John Hopkins
   homepage: http://omim.org/
+
+- namespace: omit
+  provider: ols
+  title: Ontology for miRNA Target (OMIT) through OLS
+  homepage: https://www.ebi.ac.uk/ols/ontologies/omit/
 
 - namespace: opb
   provider: bptl
@@ -2158,14 +2257,14 @@
   homepage: http://www.proteinmodelportal.org/
 
 - namespace: po
-  provider: amigo
-  title: Plant Ontology through Amigo
-  homepage: http://www.plantontology.org/
-
-- namespace: po
   provider: bptl
   title: Plant Ontology through BioPortal
   homepage: http://bioportal.bioontology.org/ontologies/PO
+
+- namespace: po
+  provider: amigo
+  title: Plant Ontology through Amigo
+  homepage: http://www.plantontology.org/
 
 - namespace: po
   provider: ols
@@ -2354,6 +2453,10 @@
   title: Rice Genome Annotation Project at TIGR
   homepage: http://rice.plantbiology.msu.edu/annotation_pseudo_current.shtml
 
+- namespace: rnacentral
+  title: RNAcentral through EMBL-EBI
+  homepage: http://rnacentral.org/
+
 - namespace: rnamods
   title: RNA Modification Database at University of Utah
   homepage: http://rna-mdb.cas.albany.edu/RNAmods/rnaover.htm
@@ -2454,6 +2557,10 @@
   title: Signaling Gateway Molecule Pages
   homepage: http://www.signaling-gateway.org/molecule
 
+- namespace: sisu
+  title: SISu
+  homepage: http://www.sisuproject.fi/
+
 - namespace: sitex
   title: SitEx at Novosibirsk State University
   homepage: http://www-bionet.sscc.ru/sitex/
@@ -2469,6 +2576,10 @@
 - namespace: snomedct
   title: SNOMED-CT at The National Pathology Exchange
   homepage: http://www.snomedbrowser.com/
+
+- namespace: so
+  title: Sequence Ontology
+  homepage: http://www.sequenceontology.org/
 
 - namespace: so
   provider: bptl
@@ -2505,8 +2616,8 @@
   homepage: https://www.storedb.org/
 
 - namespace: string
-  title: STRING Mirror at Heidelberg
-  homepage: http://string-db.org/
+  title: STRING at Heidelberg
+  homepage: http://string.embl.de/
 
 - namespace: subtilist
   title: SubtiList at Pasteur Institute
@@ -2515,6 +2626,10 @@
 - namespace: subtiwiki
   title: SubtiWiki website
   homepage: http://www.subtiwiki.uni-goettingen.de/wiki/index.php/Main_Page
+
+- namespace: sugarbind
+  title: SugarBind
+  homepage: http://sugarbind.expasy.org/ 
 
 - namespace: supfam
   title: SUPFAM at MRC and University of Bristol
@@ -2709,8 +2824,8 @@
   homepage: http://www.ncbi.nlm.nih.gov/protein/
 
 - namespace: uniprot.isoform
-  title: UniProt Isoform through UniParc
-  homepage: http://www.uniprot.org/uniparc/
+  title: UniProt Isoform through Universal Protein Resource using Persistent URL system
+  homepage: http://purl.uniprot.org/
 
 - namespace: unists
   provider: ncbi
