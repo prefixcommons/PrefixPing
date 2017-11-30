@@ -4,8 +4,6 @@
 
 Check a number of life science registries to see if a string has been claimed as a namespace.
 
-### Jupyter notebook
-A remnant of initial exploration which can be safely ignored. 
 
 ### Specifics  
 
