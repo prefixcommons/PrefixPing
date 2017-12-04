@@ -199,13 +199,13 @@ dot_whinge = '''
 
 def sanitize(tainted):
     '''
-        a letter followed a handful of alphanums, hyphen
+        a letter followed a handful of alphanumerics or hyphen
         not including underscore or colon
         as they are expected to delimit the local id
         dots should be for trailing versions on the local id (but are not)
         spaces should get you shot.
         need at least two chars (would prefer more)
-        limiting to 16 chars (would prefer less)
+        limiting to 32 chars (would prefer less)
 
         :return: safer string or None
     '''
