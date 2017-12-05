@@ -121,8 +121,7 @@ def fetch_prefix(lcl_file, rmt_url, process_raw):
 
     # check local cache
     (local_date, local_size) = local_metadata(lcl_file)
-    
-    
+
     # is cache more than a day old?
     if local_date is None or (datetime.now() - local_date).days > 0:
         (remote_date, remote_size) = remote_metadata(rmt_url)
