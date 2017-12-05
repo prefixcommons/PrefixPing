@@ -16,6 +16,8 @@ import email.utils as emut
 app = Flask(__name__)
 
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
 
 '''
     Note:
@@ -96,7 +98,6 @@ def local_metadata(pth):
 
 
 def read_yaml_array(fname, arr):
-
     if os.path.isfile(fname):
         with open(fname, 'r') as fh:
             arr = yaml.load(fh)
@@ -120,12 +121,13 @@ def fetch_prefix(lcl_file, rmt_url, process_raw):
 
     # check local cache
     (local_date, local_size) = local_metadata(lcl_file)
-
+    
+    
     # is cache more than a day old?
-    if(datetime.now() - local_date).days > 0:
+    if local_date is None or (datetime.now() - local_date).days > 0:
         (remote_date, remote_size) = remote_metadata(rmt_url)
         # has the remote been updated ?
-        if remote_date is not None and remote_date > local_date:
+        if local_date is None or remote_date is not None and remote_date > local_date:
             log.info("Remote newer")
             log.info('Fetching: ' + rmt_url)
             try:
@@ -135,11 +137,16 @@ def fetch_prefix(lcl_file, rmt_url, process_raw):
             #  the happy path
             if response.status_code == requests.codes.ok:
                 rawyaml = yaml.load(response.text)
+                rmt_pth = rmt_url.split('/')
+                rmt_file = rmt_pth[len(rmt_pth)-1]  # last on path
+                log.info('renewing local copy of %s', rmt_file) 
+                with open(rmt_file, 'w') as fh:
+                        yaml.dump(result_array, fh)
                 # remote_datetime = datetime.strptime(remote_date, fmt)
                 result_array.append('# ' + str(remote_date))
                 # source specific
                 result_array = process_raw(rawyaml, result_array)
-                # renew local cache
+                log.info('renewing local ptrfix cache %s', lcl_file) 
                 with open(lcl_file, 'w') as fh:
                         yaml.dump(result_array, fh)
             else:  # fetch remote failed
@@ -155,6 +162,8 @@ def fetch_prefix(lcl_file, rmt_url, process_raw):
         log.info('Cache ' + lcl_file + ' is less than a day old')
         result_array = read_yaml_array(lcl_file, result_array)
 
+    # result_array is a list for go but a dict for cdl ??
+     
     return [word.lower() for word in result_array]
 
 
@@ -221,8 +230,13 @@ def sanitize(tainted):
 
 @app.route('/ping/')
 def hello_world():
-    route_path = url_for('ping', qrystr='XYZ')
-    return '<h2>Prefix Ping!</h2><br>Usage: http://<host>%s<br>' % route_path
+    route_path = url_for('/ping/prefix/', qrystr='XYZ')
+    return '<h2>Prefix Ping!</h2><br>Usage: http://[host]/%s<br>' % route_path
+
+
+@app.route('/ping/help/')
+def help():
+    return
 
 
 @app.route('/ping/prefix/<string:qrystr>', methods=['GET'])
