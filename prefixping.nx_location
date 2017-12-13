@@ -1,0 +1,17 @@
+
+    # /etc/nginx/sites-available/prefixping
+    # included within the http{} block with:
+    # include /etc/nginx/sites-enabled/*
+    server {
+       
+        listen       80;
+        # listen       [::]:80;
+        # NOT the implicit default_server '_'
+        server_name  naught.uoregon.edu; 
+        location = /ping { rewrite ^ /ping/; }
+        location = /ping/pong { rewrite ^ /ping/pong/; }
+        location /ping/ {
+            uwsgi_pass unix:/run/prefixping/uwsgi_nginx.sock;
+            include uwsgi_params;
+        }
+    }

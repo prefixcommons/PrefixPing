@@ -6,10 +6,15 @@ After=network.target
 
 [Service]
 User=tomc
-Group=www-data
+Group=uwsgi
 WorkingDirectory=/srv/PrefixCommons/PrefixPing
 Environment="PATH=/srv/PrefixCommons/PrefixPing/prefixping/bin"
-ExecStart=/srv/PrefixCommons/PrefixPing/prefixping/bin/uwsgi --ini prefixping.ini
+
+# ubuntu [debian] 
+#ExecStart=/usr/bin/uwsgi --ini /srv/PrefixCommons/PrefixPing/prefixping.ini
+
+# centos [redhat]
+ExecStart=/usr/sbin/uwsgi --ini /srv/PrefixCommons/PrefixPing/prefixping.ini
 
 [Install]
 WantedBy=multi-user.target

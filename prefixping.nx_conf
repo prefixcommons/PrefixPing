@@ -1,8 +1,0 @@
-    # /etc/nginx/nginx.conf server{} section for  PrefixPing  
-    location = /ping { rewrite ^ /ping/; }
-    location = /ping/pong { rewrite ^ /ping/pong/; }
-    location /ping/ {
-         include uwsgi_params;
-         uwsgi_pass unix:/tmp/prefixping.sock;
-    }
-

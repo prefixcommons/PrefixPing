@@ -64,7 +64,7 @@ def remote_metadata(head_url):
     try:
         response = requests.head(head_url, allow_redirects=True)
     except requests.exceptions.RequestException:
-        True
+        response.raise_for_status()
 
     if response.status_code == requests.codes.ok:
         if 'last-modified' in response.headers:
@@ -132,7 +132,7 @@ def fetch_prefix(lcl_file, rmt_url, process_raw):
             try:
                 response = requests.get(rmt_url)
             except requests.exceptions.RequestException:
-                True
+                response.raise_for_status()
             #  the happy path
             if response.status_code == requests.codes.ok:
                 rawyaml = yaml.load(response.text)
@@ -229,13 +229,13 @@ def sanitize(tainted):
 
 @app.route('/ping/')
 def hello_world():
-    route_path = url_for('/ping/prefix/', qrystr='XYZ')
-    return '<h2>Prefix Ping!</h2><br>Usage: http://[host]/%s<br>' % route_path
+    return '<h1>PPOOONNNGGGG!</h1><br>' + str(datetime.now()) +'<br>'
 
 
 @app.route('/ping/help/')
 def help():
-    return
+    route_path = url_for('ping', qrystr='XYZ')
+    return '<h2>Prefix Ping!</h2><br>Usage: http://[host]%s<br>' % route_path
 
 
 @app.route('/ping/prefix/<string:qrystr>', methods=['GET'])
@@ -284,7 +284,7 @@ def ping(qrystr):
                     response = requests.head(
                         regurl[reg] + pfx, allow_redirects=True)
                 except requests.exceptions.RequestException:
-                    True  # that
+                    response.raise_for_status()
 
                 result['sources'][reg] = {
                     'url': regurl[reg]}
