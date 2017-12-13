@@ -9,19 +9,29 @@
 ifneq ($(shell whoami), root)
 	# -n, --just-print, --dry-run, --recon
 	MAKEFLAGS += n
+	SUDO := sudo
+#	$(shell echo "commands displayed only") 
+else
+	SUDO :=''
 endif
 
 # different OS's have different conventions
 UNAME := $(shell uname)
 
+OWNER := tomc
+
 ifeq ($(UNAME), Linux)
 	DIST := $(shell grep "^ID=" /etc/os-release |cut -f2 -d '=' | tr -d '"')
 	ifeq ($(DIST), centos)
 		SERVICE := /usr/lib/systemd/system
+		NETUSR := nginx
+		
 	else ifeq ($(DIST), ubuntu)
-		SERVICE := /etc/system
+		SERVICE :=  /etc/systemd/system
+		NETUSR := www-data
 	else ifeq ($(DIST), linuxmint)
-		SERVICE := /etc/system
+		SERVICE := /etc/systemd
+		NETUSR := www-data
 	#else ifeq ($(DIST), ???)
 	#	SERVICE := /x/y/z
 	endif
@@ -30,44 +40,54 @@ endif
 # expecting to be under /srv/
 PWD := $(shell pwd)
 
+APP := prefixping
 ########################################################################
 
-all : $(SERVICE)/prefixping.service /etc/nginx/sites-enabled/prefixping \
-    /etc/nginx/sites-available/prefixping
-	
-	@echo $(UNAME)
-	@echo $(DIST)
-	@echo $(SERVICE)
+all : start
+#	@echo $(UNAME)
+#	@echo $(DIST)
+#	@echo $(SERVICE)
+
+socket :
+	#### add uwsgi user to nginx group
+	# usermod -a -G nginx uwsgi
+	#### make group for directory /run/prefixping be nginx
+	$(SUDO) mkdir /run/$(APP)
+	$(SUDO) chown $(OWNER):$(NETUSR) /run/$(APP)
+	### sticky too? 
+	$(SUDO) chmod g+s /run/$(APP)
 
 # Distros may be converging on systemcrtl
 # but not on where the bits should live
-$(SERVICE)/prefixping.service : $(PWD)/prefixping.service
-	unlink $(SERVICE)/prefixping.service
-	ln -s $(PWD)/prefixping.service $(SERVICE)/prefixping.service
+service: $(SERVICE)/$(APP).service
+	# 
 
-# are init scripts even needed with <service> files in place?
-#/etc/init/prefixping.conf : ./prefixping.conf
-#	unlink /etc/init/prefixping.conf
-#	ln -s  $(PWD)/prefixping.conf /etc/init/prefixping.conf
+enabled: /etc/nginx/sites-enabled/$(APP)
+	# 
+
+$(SERVICE)/$(APP).service : $(PWD)/$(APP).service
+	$(SUDO) unlink $(SERVICE)/$(APP).service
+	$(SUDO) ln -s $(PWD)/$(APP).service $(SERVICE)$(APP).service
 
 /etc/nginx/sites-available : /etc/nginx/
-	mkdir /etc/nginx/sites-available
-	grep "include /etc/nginx/sites-enabled/\\*;" /etc/nginx/nginx.conf
+	$(SUDO) mkdir /etc/nginx/sites-available
+	$(SUDO) grep "include /etc/nginx/sites-enabled/\\*;" /etc/nginx/nginx.conf
 
-/etc/nginx/sites-available/prefixping :  /etc/nginx/sites-available prefixping.nx_location
-	unlink /etc/nginx/sites-available/prefixping
-	cp prefixping.nx_location /etc/nginx/sites-available/prefixping
+/etc/nginx/sites-available/$(APP) :  /etc/nginx/sites-available $(APP).nx_location
+	$(SUDO) unlink /etc/nginx/sites-available/$(APP)
+	$(SUDO) cp $(APP).nx_location /etc/nginx/sites-available/$(APP)
 
 /etc/nginx/sites-enabled : /etc/nginx/sites-available
-	mkdir /etc/nginx/sites-enabled
+	$(SUDO) mkdir /etc/nginx/sites-enabled
 
-/etc/nginx/sites-enabled/prefixping : /etc/nginx/sites-available/prefixping 
-	 unlink /etc/nginx/sites-enabled/prefixping
-	 ln -s /etc/nginx/sites-available/prefixping /etc/nginx/sites-enabled/prefixping
+/etc/nginx/sites-enabled/$(APP) : /etc/nginx/sites-available/$(APP) 
+	$(SUDO) unlink /etc/nginx/sites-enabled/$(APP)
+	$(SUDO) ln -s /etc/nginx/sites-available/$(APP) /etc/nginx/sites-enabled/$(APP)
 
 
-start :
-	 systemctl start prefixping
-	 systemctl enable prefixping
+start : socket service enabled
+	$(SUDO) systemctl stop  $(APP)
+	$(SUDO) systemctl start  $(APP)
+#	$(SUDO) systemctl enable $(APP)
 
 clean : PHONY
